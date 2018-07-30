@@ -9,11 +9,11 @@ class Seeker extends Component {
   render() {
     const { size } = this.props;
     const renderPairs = [
-      ["教師データの個数", size.dataSize],
-      ["入力ベクトル", size.dataSize],
-      ["中間層1", size.middleLayerSize1],
-      ["中間層2", size.middleLayerSize2],
-      ["出力ベクトル", size.outputSize],
+      ['教師データの個数', 'dataSize'],
+      ['入力ベクトル', 'inputSize'],
+      ['中間層1', 'middleLayerSize1'],
+      ['中間層2', 'middleLayerSize2'],
+      ['出力ベクトル', 'outputSize'],
     ];
     return (
       <div className="container-fluid">
@@ -22,9 +22,9 @@ class Seeker extends Component {
             <div className="col-8">{_pair[0]}</div>
             <input
               type="number"
-              value={_pair[1]}
+              value={Number(size[_pair[1]])}
               onChange={e => {
-                _pair[1] = Number(e.target.value);
+                size[_pair[1]] = Number(e.target.value);
                 this.updateSize(size)
               }}
               className="col-4"
