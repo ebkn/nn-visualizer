@@ -6,7 +6,8 @@
   "author": "ebkn <ktennis.mqekr12@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "webpack-dev-server --watch --progress"
+    "start": "webpack-dev-server --watch --progress",
+    "build": "webpack"
   },
   "dependencies": {
     "babel-core": "^6.26.3",
