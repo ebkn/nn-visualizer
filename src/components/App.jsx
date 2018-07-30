@@ -3,7 +3,8 @@ import DrawCanvas from './DrawCanvas';
 import Seeker from './Seeker';
 import Canvases from './Canvases';
 import Button from './Button';
-import NNCalculator from './nn';
+import Result from './Result';
+import NNCalculator from '../lib/nn';
 
 // デフォルトのサイズ
 const defaultSize = {
@@ -24,6 +25,8 @@ class App extends Component {
       answer: new Array(defaultSize.dataSize*defaultSize.outputSize),
       testData: new Array(defaultSize.inputSize),
       calculator: null,
+      learningState: 'not started',
+      testFinished: false,
       output: [],
     };
     this.initializePixels();
@@ -57,40 +60,35 @@ class App extends Component {
     this.setState({ testData: pixels });
   }
 
-  // 学習させる
-  startLearning() {
+  // 学習させる(非同期)
+  async startLearning() {
     this.state.calculator = new NNCalculator(this.state.size);
     this.state.calculator.setDatas(this.state.teacher, this.state.answer);
-    this.state.calculator.startLearning();
-   }
+    this.setState({ learningState: 'in progress' });
+    await this.state.calculator.startLearning();
+    this.setState({ learningState: 'finished' });
+  }
 
   // テストデータを使って確認する
   checkTestData() {
     this.setState({ output: this.state.calculator.checkTestData(this.state.testData) });
   }
 
-  createResult() {
-    const { size, output } = this.state;
-    let children = [];
-    for (let i=0; i<size.outputSize; i++) {
-      children.push(
-        <div key={`result${i}`} className="d-flex align-items-center flex-column mx-4">
-          <p>クラスタ[{i}]</p>
-          <p>{output[i]}</p>
-        </div>
-      );
+  learnButtonTitle(learningState) {
+    switch(learningState) {
+      case 'not started':
+        return "学習させる"
+      case 'in progress':
+        return '学習中'
+      case 'finished':
+        return '学習済み';
+      default: return '';
     }
-    return (
-      <div
-        children={children}
-        className="d-flex justify-content-center"
-      />
-    );
   }
 
   // 描画
   render() {
-    const { size } = this.state;
+    const { size, output, learningState, testFinished } = this.state;
     return (
       <div className="container-fluid mb-4">
         <div className="d-flex justify-content-center py-3">
@@ -106,8 +104,9 @@ class App extends Component {
         />
         <div className="d-flex justify-content-center">
           <Button
-            title={"学習させる"}
+            title={this.learnButtonTitle(learningState)}
             onClick={() => this.startLearning()}
+            disabled={learningState !== 'not started'}
           />
         </div>
         <div className="d-flex justify-content-center mt-5">
@@ -118,13 +117,15 @@ class App extends Component {
               setTestPixels={pixels => this.setTestPixels(pixels)}
             />
             <Button
-              title={"テストする"}
+              title={testFinished ? "テスト完了" : "テストする"}
               onClick={() => this.checkTestData()}
+              disabled={testFinished}
             />
             <h5 className="mt-5">結果</h5>
-            <div className="d-flex justify-content-center">
-              {this.createResult()}
-            </div>
+            <Result
+              size={size}
+              output={output}
+            />
           </div>
         </div>
       </div>

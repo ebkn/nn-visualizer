@@ -6,6 +6,7 @@ class Button extends Component {
     return (
       <button
         onClick={() => this.props.onClick()}
+        disabled={this.props.disabled}
         className="d-block px-5 py-2 bg-info white-text"
       >
         {this.props.title}
