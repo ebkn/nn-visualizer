@@ -29,6 +29,7 @@ class App extends Component {
   // 学習させる
   startLearning() {
     let calclator = new NNCalculator(this.state.size);
+    calclator.setDatas();
     calclator.run();
   }
 

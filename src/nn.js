@@ -36,6 +36,11 @@ class NNCalculator {
     }
   }
 
+  setDatas(data) {
+    this.teacher = data.teacher;
+    this.answer = data.answer;
+  }
+
   calcPairs() {
     return [
       [this.inputSize, this.middleLayerSize1, this.W1],
