@@ -1,4 +1,7 @@
+// ニューラルネットワークの計算を行うクラス
+
 class NNCalculator {
+  // 初期化
   constructor(size) {
     this.dataSize = size.dataSize;
     this.inputSize = size.inputSize;
@@ -8,19 +11,10 @@ class NNCalculator {
     this.W1 = new Array(this.inputSize);
     this.W2 = new Array(this.middleLayerSize1);
     this.W3 = new Array(this.middleLayerSize2);
-    // コードの短縮のためまとめた
     this.initializeLayers();
-    // 教師データ
-    this.teacher = [
-      [1,0,0], [1, 1, 1], [0, 1, 1], [1, 0, 1]
-    ];
-    this.answer = [
-      [1, 0], [0, 1], [0, 1], [1, 0]
-    ];
-    // テストデータ
-    this.testInput = [1, 0, 0]
   }
 
+  // 初期化
   initializeLayers() {
     for (let calcPair of this.calcPairs()) {
       for (let i=0; i<calcPair[0]; i++) {
@@ -36,11 +30,7 @@ class NNCalculator {
     }
   }
 
-  setDatas(data) {
-    this.teacher = data.teacher;
-    this.answer = data.answer;
-  }
-
+  // コードの短縮化のためまとめる
   calcPairs() {
     return [
       [this.inputSize, this.middleLayerSize1, this.W1],
@@ -49,11 +39,20 @@ class NNCalculator {
     ];
   }
 
-  run() {
+  // 教師データをセットする
+  setDatas(teacher, answer) {
+    this.teacher = teacher;
+    this.answer = answer;
+  }
+
+  // 学習を実行する
+  startLearning() {
+    console.log('学習開始');
     // 学習回数
     let repeatCount = 0;
     let loss;
     while (true) {
+      console.log(`${repeatCount+1} 回目学習`);
       // 損失関数を小さくするように線形変換の成分を変えていく。
       loss = this.runNN();
       repeatCount++;
@@ -61,11 +60,16 @@ class NNCalculator {
       //損失が十分小さくなったら学習作業をやめる
       if (loss < 0.001) break;
     }
+    console.log(`学習完了`);
+  }
 
-    const output = this.evaluate(this.testInput);
-
-    console.log(`${repeatCount} 回学習しました。`);
-    console.log(`${output[0]} : ${output[1]}`);
+  // testDataを与えて学習させたモデルを検証
+  checkTestData(testData) {
+    const output = this.evaluate(testData);
+    for (let i=0; i<output.length; i++) {
+      console.log(`${i} : ${output[i]}`);
+    }
+    return output;
   }
 
   // 学習作業（行列W1,W2,W3の値の調節）
@@ -74,10 +78,15 @@ class NNCalculator {
       for (let j=0; j<calcPair[1]; j++) {
         for (let i=0; i<calcPair[0]; i++) {
           const der = this.derivative(calcPair[2], i, j);
-          if (der<-0.0001 || 0.0001<der) {//微分が0に近いときは扱わない。
-            const dx = this.lossFunction() / der;// 損失関数の値を微分で割る
-            calcPair[2][i][j] -= this.clump(dx);// dxを引く
+          // 微分が0に近いときは扱わない
+          if (der > 0.0001 && der < -0.0001) {
+            continue;
           }
+
+          // 損失関数の値を微分で割る
+          const dx = this.lossFunction() / der;
+          // dxを引く
+          calcPair[2][i][j] -= this.clump(dx);
         }
       }
     }
@@ -110,31 +119,26 @@ class NNCalculator {
     let p1 = [];
     let p2 = [];
     let p3 = [];
+    // 線形変換と活性化を実行
     for (let j=0; j<this.middleLayerSize1; j++) {
-      //線形変換
       p1[j] = 0.0;
       for (let i=0; i<this.inputSize; i++) {
         p1[j] += input[i] * this.W1[i][j];
       }
-      //活性化
       p1[j] = this.activation(p1[j]);
     }
     for (let j=0; j<this.middleLayerSize2; j++) {
-      //線形変換
       p2[j] = 0.0;
       for (let i=0; i<this.middleLayerSize1; i++) {
         p2[j] += p1[i] * this.W2[i][j];
       }
-      //活性化
       p2[j] = this.activation(p2[j]);
     }
     for (let j=0; j<this.outputSize; j++) {
-      //線形変換
       p3[j] = 0.0;
       for (let i=0; i<this.middleLayerSize2; i++) {
         p3[j] += p2[i] * this.W3[i][j];
       }
-      //活性化
       p3[j] = this.activation(p3[j]);
     }
     return p3;
@@ -146,6 +150,7 @@ class NNCalculator {
     if (x < -0.1) return -0.1;
     return x;
   }
+
   // 活性化関数
   activation(x) {
     // return Math.max(0,x);// ReLU

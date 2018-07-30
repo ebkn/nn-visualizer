@@ -6,32 +6,32 @@ class Seeker extends Component {
     this.props.updateSize(size);
   }
 
-  // 上限を指定
+  // サイズの制限を指定
   invalidSize(key, value) {
     const limits = {
+      'outputSize': 5,
       'dataSize': 10,
-      'inputSize': 100*100,
-      'middleLayerSize1': 10,
-      'middleLayerSize2': 10,
-      'outputSize': 10,
+      'middleLayerSize1': 20,
+      'middleLayerSize2': 20,
     };
-    return value > limits[key];
+    return value > limits[key] || value < 1;
   }
 
   render() {
     const { size } = this.props;
     const renderPairs = [
-      ['教師データの個数', 'dataSize'],
-      ['入力ベクトル', 'inputSize'],
+      ['クラスタの数', 'outputSize'],
+      ['教師データ数', 'dataSize'],
       ['中間層1', 'middleLayerSize1'],
       ['中間層2', 'middleLayerSize2'],
-      ['出力ベクトル', 'outputSize'],
     ];
+    // 入力ベクトルのサイズは画像(100*100)
+    // ['入力ベクトル', 'inputSize'],
     return (
-      <div className="container-fluid">
+      <div className="container d-flex justify-content-around py-3 border">
         { renderPairs.map((_pair, i) => (
-          <div key={i} className="row px-4 py-1">
-            <div className="col-8">{_pair[0]}</div>
+          <div key={i} className="px-4 py-1">
+            <div className="py-2 text-center">{_pair[0]}</div>
             <input
               type="number"
               value={Number(size[_pair[1]])}
@@ -42,7 +42,7 @@ class Seeker extends Component {
                 size[_pair[1]] = Number(e.target.value);
                 this.updateSize(size)
               }}
-              className="col-4"
+              className="text-center"
             />
           </div>
         ))}
