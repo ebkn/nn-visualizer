@@ -1,10 +1,11 @@
 {
-  "name": "calcmath",
-  "version": "1.0.0",
+  "name": "nn-visualizer",
+  "version": "0.0.1",
   "main": "src/index.js",
   "repository": "git@github.com:ebkn/calcmath-nn.git",
   "author": "ebkn <ktennis.mqekr12@gmail.com>",
   "license": "MIT",
+  "private": true,
   "scripts": {
     "start": "webpack-dev-server --watch --progress",
     "build": "webpack"
